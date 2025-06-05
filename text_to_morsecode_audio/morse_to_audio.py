@@ -21,6 +21,59 @@ DASH = '-'
 SYMBOL_GAP = ' '
 WORD_SEPARATOR = '/'
 
+MORSE_CODE_DICT = {
+    'A': '.-',    'B': '-...',  'C': '-.-.',  'D': '-..',
+    'E': '.',     'F': '..-.',  'G': '--.',   'H': '....',
+    'I': '..',    'J': '.---',  'K': '-.-',   'L': '.-..',
+    'M': '--',    'N': '-.',    'O': '---',   'P': '.--.',
+    'Q': '--.-',  'R': '.-.',   'S': '...',   'T': '-',
+    'U': '..-',   'V': '...-',  'W': '.--',   'X': '-..-',
+    'Y': '-.--',  'Z': '--..',
+
+    '0': '-----', '1': '.----', '2': '..---', '3': '...--',
+    '4': '....-', '5': '.....', '6': '-....', '7': '--...',
+    '8': '---..', '9': '----.',
+
+    '.': '.-.-.-', ',': '--..--', '?': '..--..', "'": '.----.',
+    '!': '-.-.--', '/': '-..-.',  '(': '-.--.',  ')': '-.--.-',
+    '&': '.-...',  ':': '---...', ';': '-.-.-.', '=': '-...-',
+    '+': '.-.-.',  '-': '-....-', '_': '..--.-', '"': '.-..-.',
+    '$': '...-..-', '@': '.--.-.',
+
+    ' ': '/'
+}
+
+def text_to_morse():
+    user_input = input('What would you like to translate to Morse Code?\n').upper()
+    # Error handling to show unconvertible characters
+
+    invalid_chars = [char for char in user_input if char not in MORSE_CODE_DICT]
+
+    if invalid_chars:
+        print(f"Sorry, the following character(s) cannot be converted to Morse Code: {', '.join(invalid_chars)}")
+        print("Try a different input.")
+        return text_to_morse()
+    else:
+
+        return ' '.join(MORSE_CODE_DICT[letter] for letter in user_input)
+
+
+def translate_more_text():
+    more_words = input('Would you like to translate more words (Y/n)? \n').upper()
+    if more_words == 'Y':
+        morse = text_to_morse()
+        print('Morse:', morse)
+        waveform = morse_to_waveform(morse)
+        play_waveform(waveform)
+        translate_more_text()
+
+    elif more_words == 'N':
+        print('END!')
+
+    else:
+        print('Not a valid choice try again!')
+        translate_more_text()
+
 
 def morse_to_waveform(morse_code, frequency=FREQUENCY, dot_duration=DOT_DURATION, sample_rate=SAMPLE_RATE, volume=VOLUME):
     """
@@ -107,6 +160,17 @@ def main():
     if args.play or not args.output:
         play_waveform(waveform, sample_rate=SAMPLE_RATE)
 
-if __name__ == "__main__":
-    main()
 
+if __name__ == "__main__":
+    # Comment out main() to disable the Command-Line Mode and run the code in Interactive Mode
+    # to ensure the translate_more_text() gets called after the other functions
+    # main()
+
+
+    morse = text_to_morse()
+    print('Morse:', morse)
+
+    waveform = morse_to_waveform(morse)
+    play_waveform(waveform)
+
+    translate_more_text()

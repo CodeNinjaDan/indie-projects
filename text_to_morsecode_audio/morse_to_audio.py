@@ -2,6 +2,7 @@ import argparse
 from pathlib import Path
 import numpy as np
 import simpleaudio as sa
+import math
 
 # Morse code timing
 DOT_DURATION = 0.1
@@ -59,20 +60,18 @@ def text_to_morse():
 
 
 def translate_more_text():
-    more_words = input('Would you like to translate more words (Y/n)? \n').upper()
-    if more_words == 'Y':
-        morse = text_to_morse()
-        print('Morse:', morse)
-        waveform = morse_to_waveform(morse)
-        play_waveform(waveform)
-        translate_more_text()
-
-    elif more_words == 'N':
-        print('END!')
-
-    else:
-        print('Not a valid choice try again!')
-        translate_more_text()
+    while True:
+        more_words = input('Would you like to translate more words (Y/n)? \n').upper()
+        if more_words == 'Y':
+            morse = text_to_morse()
+            print('Morse:', morse)
+            waveform = morse_to_waveform(morse)
+            play_waveform(waveform)
+        elif more_words == 'N':
+            print('END!')
+            break
+        else:
+            print('Not a valid choice try again!')
 
 
 def morse_to_waveform(morse_code, frequency=FREQUENCY, dot_duration=DOT_DURATION, sample_rate=SAMPLE_RATE, volume=VOLUME):
@@ -115,8 +114,21 @@ def morse_to_waveform(morse_code, frequency=FREQUENCY, dot_duration=DOT_DURATION
 
 
 def play_waveform(waveform, sample_rate=SAMPLE_RATE):
-    audio = (waveform * 32767).astype(np.int16)
-    sa.play_buffer(audio, 1, 2, sample_rate).wait_done()
+    if waveform is None or len(waveform) == 0:
+        print("No audio to play.")
+        return
+    if np.any(np.isnan(waveform)) or np.any(np.isinf(waveform)):
+        print("Waveform contains NaN or Inf values. Skipping playback.")
+        return
+    if waveform.ndim != 1:
+        print(f"Waveform is not 1D (shape: {waveform.shape}). Skipping playback.")
+        return
+    print(f"Playing waveform: dtype={waveform.dtype}, shape={waveform.shape}, min={np.min(waveform)}, max={np.max(waveform)}")
+    try:
+        audio = (waveform * 32767).astype(np.int16)
+        sa.play_buffer(audio, 1, 2, sample_rate).wait_done()
+    except Exception as e:
+        print(f"Error playing audio: {e}")
 
 
 def save_waveform(waveform, path, sample_rate=SAMPLE_RATE):
@@ -167,10 +179,16 @@ if __name__ == "__main__":
     # main()
 
 
-    morse = text_to_morse()
-    print('Morse:', morse)
-
-    waveform = morse_to_waveform(morse)
-    play_waveform(waveform)
-
-    translate_more_text()
+    try:
+        morse = text_to_morse()
+        print('Morse:', morse)
+        waveform = morse_to_waveform(morse)
+        play_waveform(waveform)
+        translate_more_text()
+    except (SystemExit, KeyboardInterrupt):
+        print("Exiting...")
+    except Exception as e:
+        print(f"Unexpected error: {e}")
+        import traceback
+        traceback.print_exc()
+        print("If you see 'Process finished with exit code 139', this is likely a native library crash (e.g., simpleaudio or numpy). Check your input and environment.")

@@ -1,6 +1,7 @@
 import random
+from game import TicTacToe
 
-class Player():
+class Player:
     def __init__(self, letter):
         self.letter = letter
 
@@ -8,7 +9,7 @@ class Player():
         pass
 
 
-class ComputerPlayer(Player)
+class ComputerPlayer(Player):
     def __init__(self, letter):
         super().__init__(letter)
 

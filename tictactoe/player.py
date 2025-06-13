@@ -1,5 +1,4 @@
 import random
-from game import TicTacToe
 
 class Player:
     def __init__(self, letter):
@@ -38,5 +37,3 @@ class HumanPlayer(Player):
                 print('Invalid square. Please try again.')
 
         return val
-
-

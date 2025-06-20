@@ -1,5 +1,5 @@
 import time
-from player import ComputerPlayer, HumanPlayer
+from player import ComputerPlayer, HumanPlayer, ProComputerPlayer
 
 class TicTacToe:
     def __init__(self):
@@ -90,8 +90,40 @@ def play(game, x_player, o_player, print_game=True):
     if print_game:
         print("It's a tie!")
 
+# # Human vs Normal Computer
+# if __name__ == "__main__":
+#     x_player = HumanPlayer('X')
+#     o_player = ComputerPlayer('O')
+#     t = TicTacToe()
+#     play(t, x_player, o_player, print_game=True)
+
+
+# Human vs Pro Computer
 if __name__ == "__main__":
     x_player = HumanPlayer('X')
-    o_player = ComputerPlayer('O')
+    o_player = ProComputerPlayer('O')
     t = TicTacToe()
-    play(t, x_player, o_player, print_game=True)
+    play(t, x_player, o_player)
+
+
+# Pro Computer vs Normal Computer
+if __name__ == "__main__":
+    x_wins = 0
+    o_wins = 0
+    ties = 0
+    for i in range(1000):
+        x_player = ComputerPlayer('X')
+        o_player = ProComputerPlayer('O')
+        t = TicTacToe()
+        result = play(t, x_player, o_player, print_game=False)
+
+        if result == 'X':
+            x_wins += 1
+        elif result == 'O':
+            o_wins += 1
+        else:
+            ties += 1
+
+    print(f'After 1000 iterations there are {x_wins} X wins, {o_wins} O wins and {ties} game ties!')
+
+

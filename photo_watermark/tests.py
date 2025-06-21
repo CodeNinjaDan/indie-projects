@@ -1,21 +1,20 @@
 import tkinter as tk
+from PIL import Image, ImageDraw, ImageFont
 
-# from PIL import Image, ImageDraw, ImageFont
-#
-# im = Image.open(input("File path of the image: "))
-#
-# draw = ImageDraw.Draw(im)
-# font = ImageFont.load_default(25)
-# draw.text((10, 10), input("Text to add: "), font=font, fill=input("Color of the text: ").lower())
-# im.show()
+def add_watermark():
+    image_path, watermark_text, text_fill = get_inputs()
+    im = Image.open(image_path)
+    draw = ImageDraw.Draw(im)
+    font = ImageFont.load_default(25)
+    draw.text((10, 10), watermark_text, font=font, fill=text_fill)
+    im.show()
+
 
 def get_inputs():
     image_path = entry_image.get()
     watermark_text = entry_text.get()
     text_fill = entry_fill.get().lower()
-    print("Image path:", image_path)
-    print("Watermark text:", watermark_text)
-    print("Text fill color:", text_fill)
+    return image_path, watermark_text, text_fill
 
 
 
@@ -40,7 +39,7 @@ def main():
     entry_fill = tk.Entry(window, width=40)
     entry_fill.pack(pady=10)
 
-    button = tk.Button(window, text='Submit', command=get_inputs)
+    button = tk.Button(window, text='Submit', command=add_watermark)
     button.pack(pady=10)
 
 
@@ -49,3 +48,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+    add_watermark()

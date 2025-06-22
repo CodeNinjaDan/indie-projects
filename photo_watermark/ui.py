@@ -1,28 +1,37 @@
 import tkinter as tk
+from tkinter import ttk
 
 class Ui:
     def __init__(self):
         self.button = None
         self.window = tk.Tk()
         self.window.title("Photo Watermark App")
-        self.window.minsize(width=400, height=300)
+        self.window.minsize(width=400, height=320)
+        # Use more modern background color
+        self.window.configure(bg="#232946")
 
-        tk.Label(self.window, text="Enter Image Path:").pack(pady=10)
-        self.entry_image = tk.Entry(self.window, width=40)
-        self.entry_image.pack(pady=5)
+        style = ttk.Style()
+        style.theme_use('clam')
+        style.configure('TLabel', background="#232946", foreground="#eebbc3", font=("Segoe UI", 11))
+        style.configure('TEntry', fieldbackground="#eebbc3", background="#eebbc3", foreground="#232946", borderwidth=0, relief="flat")
+        style.configure('TButton', background="#eebbc3", foreground="#232946", font=("Segoe UI", 11, "bold"), borderwidth=0, focusthickness=3, focuscolor='none')
 
-        tk.Label(self.window, text="What text do you want to add to the image?").pack(pady=10)
-        self.entry_text = tk.Entry(self.window, width=40)
-        self.entry_text.pack(pady=5)
+        ttk.Label(self.window, text="Enter Image Path:").pack(pady=(18, 5))
+        self.entry_image = ttk.Entry(self.window, width=38)
+        self.entry_image.pack(ipady=6, pady=2)
 
-        tk.Label(self.window, text="What color do you want the text to have?").pack(pady=10)
-        self.entry_fill = tk.Entry(self.window, width=40)
-        self.entry_fill.pack(pady=5)
+        ttk.Label(self.window, text="What text do you want to add to the image?").pack(pady=(12, 5))
+        self.entry_text = ttk.Entry(self.window, width=38)
+        self.entry_text.pack(ipady=6, pady=2)
 
-        self.button = tk.Button(self.window, text='Submit', command='')
-        self.button.pack(pady=10)
+        ttk.Label(self.window, text="What color do you want the text to have?").pack(pady=(12, 5))
+        self.entry_fill = ttk.Entry(self.window, width=38)
+        self.entry_fill.pack(ipady=6, pady=2)
 
-        self.error_label = tk.Label(self.window, text='', fg='red')
+        self.button = ttk.Button(self.window, text='Submit', command='')
+        self.button.pack(pady=18, ipadx=10, ipady=4)
+
+        self.error_label = tk.Label(self.window, text='', fg='#ffadad', bg="#232946", font=("Segoe UI", 10, "bold"))
         self.error_label.pack(pady=5)
 
     def get_inputs(self):

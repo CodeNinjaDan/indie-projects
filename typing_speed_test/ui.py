@@ -34,12 +34,33 @@ class TypingSpeedTestUI(tk.Tk):
         self.select_button.pack(pady=30)
 
     def _on_select(self):
+        selected_duration = self.duration_var.get()
         if self.on_duration_selected:
-            self.on_duration_selected(self.duration_var.get())
-        else:
-            print(self.duration_var.get())  # For testing
+            self.on_duration_selected(selected_duration)
+        self.destroy()  # Close the window after selection
 
-if __name__ == "__main__":
-    app = TypingSpeedTestUI()
-    app.mainloop()
+class TypingTestWindow(tk.Toplevel):
+    def __init__(self, text_to_type: str):
+        super().__init__()
+        self.title("Typing Test")
+        self.configure(bg="#181818")
+        self.geometry("600x300")
+        self.resizable(False, False)
+        self._build_widgets(text_to_type)
 
+    def _build_widgets(self, text_to_type):
+        style = ttk.Style(self)
+        style.theme_use('clam')
+        style.configure('TLabel', background='#181818', foreground='#f5f5f5', font=("Segoe UI", 13))
+        style.configure('TFrame', background='#181818')
+
+        frame = ttk.Frame(self)
+        frame.pack(fill="both", expand=True, padx=30, pady=30)
+
+        label = ttk.Label(frame, text="Type the following text:", anchor="w")
+        label.pack(anchor="w", pady=(0, 10))
+
+        text_widget = tk.Text(frame, wrap="word", height=6, bg="#222", fg="#f5f5f5", font=("Segoe UI", 13), bd=0, relief="flat", state="normal")
+        text_widget.insert(tk.END, text_to_type)
+        text_widget.config(state="disabled")
+        text_widget.pack(fill="both", expand=True)

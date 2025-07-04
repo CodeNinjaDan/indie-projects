@@ -23,11 +23,35 @@ class TypingSpeedTestUI(tk.Tk):
         label = ttk.Label(self, text="How long do you want to test your typing for?")
         label.pack(pady=(30, 10))
 
+        # Create a label to show selected duration
+        self.selected_duration_label = ttk.Label(self, text="Currently selected: 1 minute", font=("Segoe UI", 10))
+        self.selected_duration_label.pack(pady=(0, 10))
+
         self.duration_var = tk.IntVar(value=1)
+        # Add a trace to monitor changes to duration_var
+        def trace_var(*args):
+            print(f"Radio button selection changed to: {self.duration_var.get()}")
+            self.selected_duration_label.config(text=f"Currently selected: {self.duration_var.get()} minute(s)")
+        self.duration_var.trace_add("write", trace_var)
+
         radio_frame = tk.Frame(self, bg="#181818")
         radio_frame.pack(pady=5)
+
+        def make_radio_command(duration_value):
+            def command_func():
+                self.duration_var.set(duration_value)
+                print(f"Radio button clicked with value: {duration_value}")
+            return command_func
+
+        # Radio button with its own command
         for val, text in zip([1, 3, 5], ["1 minute", "3 minutes", "5 minutes"]):
-            rb = ttk.Radiobutton(radio_frame, text=text, variable=self.duration_var, value=val)
+            rb = ttk.Radiobutton(
+                radio_frame,
+                text=text,
+                variable=self.duration_var,
+                value=val,
+                command=make_radio_command(val)
+            )
             rb.pack(side="left", padx=10)
 
         self.select_button = ttk.Button(self, text="Start Test", command=self._on_select)
@@ -35,6 +59,7 @@ class TypingSpeedTestUI(tk.Tk):
 
     def _on_select(self):
         selected_duration = self.duration_var.get()
+        print(f"UI: Selected duration before passing: {selected_duration}")
         if self.on_duration_selected:
             self.on_duration_selected(selected_duration)
         self.destroy()  # Close the window after selection
@@ -88,9 +113,12 @@ class TypingTestWindow(tk.Toplevel):
 
     def _update_timer(self):
         mins, secs = divmod(self._remaining_seconds, 60)
-        self.timer_label.config(text=f"Time left: {mins:02d}:{secs:02d}")
+        timer_text = f"Time left: {mins:02d}:{secs:02d}"
+        print(f"Timer: {timer_text}")
+        self.timer_label.config(text=timer_text)
         if self._remaining_seconds > 0:
             self._remaining_seconds -= 1
             self.after(1000, self._update_timer)
         else:
             self.timer_label.config(text="Time's up!")
+            print("Timer: Time's up!")

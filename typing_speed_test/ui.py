@@ -44,8 +44,10 @@ class TypingTestWindow(tk.Toplevel):
         super().__init__()
         self.title("Typing Test")
         self.configure(bg="#181818")
-        self.geometry("600x300")
-        self.resizable(False, False)
+        # Make window open in full screen
+        self.attributes('-fullscreen', True)
+        # Add an escape key binding to exit full screen if needed
+        self.bind("<Escape>", lambda event: self.attributes("-fullscreen", False))
         self._build_widgets(text_to_type)
 
     def _build_widgets(self, text_to_type):
@@ -57,10 +59,38 @@ class TypingTestWindow(tk.Toplevel):
         frame = ttk.Frame(self)
         frame.pack(fill="both", expand=True, padx=30, pady=30)
 
-        label = ttk.Label(frame, text="Type the following text:", anchor="w")
+        # Add a timer label in the top right corner
+        self.timer_label = ttk.Label(frame, text="Time left: --:--", font=("Segoe UI", 12), background="#181818", foreground="#f5f5f5")
+        self.timer_label.pack(anchor="ne", pady=(0, 10), padx=(0, 0))
+
+        # Use a separate frame for the text and input to avoid overlap
+        text_frame = ttk.Frame(frame)
+        text_frame.pack(fill="both", expand=True)
+
+        label = ttk.Label(text_frame, text="Type the following text:", anchor="w")
         label.pack(anchor="w", pady=(0, 10))
 
-        text_widget = tk.Text(frame, wrap="word", height=6, bg="#222", fg="#f5f5f5", font=("Segoe UI", 13), bd=0, relief="flat", state="normal")
+        text_widget = tk.Text(text_frame, wrap="word", height=6, bg="#222", fg="#f5f5f5", font=("Segoe UI", 13), bd=0, relief="flat", state="normal")
         text_widget.insert(tk.END, text_to_type)
         text_widget.config(state="disabled")
         text_widget.pack(fill="both", expand=True)
+
+        # Add a typing box for user input
+        input_label = ttk.Label(frame, text="Type here:", anchor="w")
+        input_label.pack(anchor="w", pady=(20, 5))
+
+        self.user_input = tk.Text(frame, wrap="word", height=4, bg="#282828", fg="#f5f5f5", font=("Segoe UI", 13), bd=1, relief="solid")
+        self.user_input.pack(fill="x", expand=False, pady=(0, 0))
+
+    def start_timer(self, duration_seconds):
+        self._remaining_seconds = duration_seconds
+        self._update_timer()
+
+    def _update_timer(self):
+        mins, secs = divmod(self._remaining_seconds, 60)
+        self.timer_label.config(text=f"Time left: {mins:02d}:{secs:02d}")
+        if self._remaining_seconds > 0:
+            self._remaining_seconds -= 1
+            self.after(1000, self._update_timer)
+        else:
+            self.timer_label.config(text="Time's up!")

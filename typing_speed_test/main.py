@@ -24,7 +24,8 @@ def get_random_paragraphs(sentences, duration):
 def start_typing_test(duration):
     sentences = sent_tokenize(read_file())
     paragraph = get_random_paragraphs(sentences, duration)
-    TypingTestWindow(paragraph)
+    window = TypingTestWindow(paragraph)
+    window.start_timer(duration * 60)
 
 
 if __name__ == "__main__":

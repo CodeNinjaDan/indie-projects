@@ -30,7 +30,7 @@ class Game:
         board.color("white")
         board.shapesize(stretch_wid=1, stretch_len=5)
         board.penup()
-        board.goto(0, 250)
+        board.goto(0, -200)
         return board
 
     def setup_controls(self):
@@ -49,3 +49,39 @@ class Game:
         if self.board.xcor() < 350:
             new_x = self.board.xcor() + 20
             self.board.goto(new_x, self.board.ycor())
+
+    def check_ball_out_bounds(self):
+        if self.ball.ycor() < -280:
+            self.scoreboard.lose_life()
+            self.ball.reset_position()
+            if self.scoreboard.is_game_over():
+                self.game_over()
+
+    def check_win_condition(self):
+        if self.brick_wall.is_wall_destroyed():
+            self.scoreboard.display_winner()
+            self.game_is_on = False
+
+    def game_over(self):
+        self.scoreboard.display_game_over()
+        self.game_is_on = False
+
+    def run(self):
+        while self.game_is_on:
+            time.sleep(self.ball.move_speed)
+            self.screen.update()
+
+            self.ball.move()
+
+            self.collision_manager.check_wall_collisions()
+            self.collision_manager.check_board_collisions()
+            self.collision_manager.check_brick_collisions()
+
+            self.check_ball_out_bounds()
+            self.check_win_condition()
+
+        self.screen.exitonclick()
+
+if __name__ == "__main__":
+    game = Game()
+    game.run()

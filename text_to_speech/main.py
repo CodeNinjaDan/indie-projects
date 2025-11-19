@@ -14,8 +14,10 @@ async def upload_file(file: UploadFile = File(...)):
     audio = synthesize_text_to_audio(extracted_text)
 
     if audio:
+        print("Audio received successfully")
         return Response(content=audio, media_type="audio/mpeg")
     else:
+        print("No audio")
         return {"error": "could not synthesize audio"}
 
 

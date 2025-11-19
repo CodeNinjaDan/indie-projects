@@ -1,17 +1,15 @@
-import main
-import asyncio
+import io
 from pypdf import PdfReader
-import boto3
 from dotenv import load_dotenv
-
+import boto3
 
 load_dotenv()
 
 polly = boto3.client('polly')
 
-async def pdf_to_text():
-    file_content = await main.upload_file()
-    reader = PdfReader(file_content)
+def extract_pdf_from_bytes(pdf_bytes):
+    pdf_content = io.BytesIO(pdf_bytes)
+    reader = PdfReader(pdf_content)
     full_text = ""
     for page in reader.pages:
         text = page.extract_text()
@@ -21,7 +19,7 @@ async def pdf_to_text():
     return full_text
 
 
-def synthesize_pdf_text(text):
+def synthesize_text_to_audio(text):
     response = polly.synthesize_speech(
         Text=text,
         OutputFormat="mp3",
@@ -29,10 +27,5 @@ def synthesize_pdf_text(text):
     )
 
     if "AudioStream" in response:
-        with open('speech.mp3', 'wb') as file:
-            file.write(response["AudioStream"].read())
-
-        print("Speech successfully saved to speech.mp3")
-
-pdf_content = pdf_to_text()
-synthesize_pdf_text(pdf_content)
+        return response["AudioStream"].read()
+    return None

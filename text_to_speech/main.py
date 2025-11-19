@@ -1,23 +1,22 @@
-from fastapi import FastAPI, File, UploadFile
-import io
-import httpx
-import os
-from dotenv import load_dotenv
-import boto3
-from pypdf import PdfReader
+from fastapi import FastAPI, File, UploadFile, Response
+from contextlib import asynccontextmanager
+from convert import extract_pdf_from_bytes, synthesize_text_to_audio
 
-load_dotenv()
 
 app = FastAPI()
-
-polly = boto3.client('polly')
 
 @app.post("/upload")
 async def upload_file(file: UploadFile = File(...)):
     content = await file.read()
 
-    return io.BytesIO(content)
+    extracted_text = extract_pdf_from_bytes(content)
 
+    audio = synthesize_text_to_audio(extracted_text)
+
+    if audio:
+        return Response(content=audio, media_type="audio/mpeg")
+    else:
+        return {"error": "could not synthesize audio"}
 
 
 if __name__ == "__main__":

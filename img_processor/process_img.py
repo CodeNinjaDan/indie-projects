@@ -1,7 +1,11 @@
 """Decode the image (bytes->pixels), Reshape(3D->2D), Count the number of pixels, Sort the most common pixels"""
 import numpy as np
+from PIL import Image
+import io
 
-def process_image(image):
+def process_image(image_bytes):
+    image_stream = io.BytesIO(image_bytes)
+    image = Image.open(image_stream)
     img_bytes = np.array(image)
     reshaped_bytes = img_bytes.reshape(-1, 3)
     unique_colors = np.unique(reshaped_bytes, axis=0, return_counts=True)

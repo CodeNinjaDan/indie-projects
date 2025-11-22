@@ -5,6 +5,7 @@ from PIL import Image
 img = Image.open("colorful_img.jpg")
 
 img_bytes = np.array(img)
+print(img_bytes.dtype)
 print(img_bytes.shape)
 
 reshaped_bytes = img_bytes.reshape(-1, 3)
@@ -18,6 +19,7 @@ print(sort_order)
 sorted_colors = unique_colors[0][sort_order]
 print(sorted_colors)
 top_10_colors = sorted_colors[-10:]
+top_10_colors = top_10_colors[::-1]
 print(top_10_colors)
 
 color_hex = []

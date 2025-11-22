@@ -22,3 +22,6 @@ __pycache__/
 *.txt
 *.pdf
 *.mp3
+*.jpg
+*.png
+*.jpeg

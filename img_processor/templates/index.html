@@ -1,0 +1,959 @@
+
+
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Image Color Palette Extractor</title>
+
+    <style>
+
+        * {
+
+            margin: 0;
+
+            padding: 0;
+
+            box-sizing: border-box;
+
+        }
+
+
+
+        body {
+
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+
+            min-height: 100vh;
+
+            padding: 20px;
+
+        }
+
+
+
+        .container {
+
+            max-width: 1200px;
+
+            margin: 0 auto;
+
+            background: white;
+
+            border-radius: 15px;
+
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+
+            overflow: hidden;
+
+        }
+
+
+
+        .header {
+
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+
+            color: white;
+
+            padding: 40px 20px;
+
+            text-align: center;
+
+        }
+
+
+
+        .header h1 {
+
+            font-size: 2.5em;
+
+            margin-bottom: 10px;
+
+            font-weight: 300;
+
+        }
+
+
+
+        .header p {
+
+            font-size: 1.1em;
+
+            opacity: 0.9;
+
+            max-width: 600px;
+
+            margin: 0 auto;
+
+        }
+
+
+
+        .content {
+
+            padding: 40px;
+
+        }
+
+
+
+        .upload-section {
+
+            background: #f8f9fa;
+
+            padding: 30px;
+
+            border-radius: 10px;
+
+            margin-bottom: 30px;
+
+            border: 2px dashed #dee2e6;
+
+            text-align: center;
+
+        }
+
+
+
+        .upload-area {
+
+            padding: 40px;
+
+            border: 2px dashed #3498db;
+
+            border-radius: 10px;
+
+            background: #ecf0f1;
+
+            cursor: pointer;
+
+            transition: all 0.3s ease;
+
+        }
+
+
+
+        .upload-area:hover {
+
+            background: #d6eaf8;
+
+            border-color: #2980b9;
+
+        }
+
+
+
+        .upload-area.dragover {
+
+            background: #3498db;
+
+            border-color: #2980b9;
+
+            color: white;
+
+        }
+
+
+
+        .upload-icon {
+
+            font-size: 3em;
+
+            color: #3498db;
+
+            margin-bottom: 15px;
+
+        }
+
+
+
+        .file-input {
+
+            display: none;
+
+        }
+
+
+
+        .btn {
+
+            background: #3498db;
+
+            color: white;
+
+            border: none;
+
+            padding: 12px 30px;
+
+            border-radius: 25px;
+
+            cursor: pointer;
+
+            font-size: 1em;
+
+            transition: all 0.3s ease;
+
+            margin: 10px;
+
+        }
+
+
+
+        .btn:hover {
+
+            background: #2980b9;
+
+            transform: translateY(-2px);
+
+        }
+
+
+
+        .btn:disabled {
+
+            background: #bdc3c7;
+
+            cursor: not-allowed;
+
+            transform: none;
+
+        }
+
+
+
+        .settings {
+
+            display: flex;
+
+            justify-content: center;
+
+            gap: 20px;
+
+            margin: 20px 0;
+
+            flex-wrap: wrap;
+
+        }
+
+
+
+        .setting-group {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 10px;
+
+        }
+
+
+
+        .setting-group label {
+
+            font-weight: 500;
+
+            color: #2c3e50;
+
+        }
+
+
+
+        select, input[type="number"] {
+
+            padding: 8px 12px;
+
+            border: 1px solid #bdc3c7;
+
+            border-radius: 5px;
+
+            font-size: 0.9em;
+
+        }
+
+
+
+        .results {
+
+            display: none;
+
+            margin-top: 40px;
+
+        }
+
+
+
+        .color-palette {
+
+            display: grid;
+
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+
+            gap: 15px;
+
+            margin-top: 20px;
+
+        }
+
+
+
+        .color-item {
+
+            border-radius: 10px;
+
+            overflow: hidden;
+
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+
+            transition: transform 0.3s ease;
+
+        }
+
+
+
+        .color-item:hover {
+
+            transform: translateY(-5px);
+
+        }
+
+
+
+        .color-swatch {
+
+            height: 100px;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            font-weight: bold;
+
+            color: white;
+
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+
+        }
+
+
+
+        .color-info {
+
+            padding: 15px;
+
+            background: white;
+
+        }
+
+
+
+        .color-hex {
+
+            font-family: 'Courier New', monospace;
+
+            font-weight: bold;
+
+            color: #2c3e50;
+
+            margin-bottom: 5px;
+
+        }
+
+
+
+        .color-name {
+
+            color: #7f8c8d;
+
+            font-size: 0.9em;
+
+            margin-bottom: 5px;
+
+        }
+
+
+
+        .color-percentage {
+
+            color: #e74c3c;
+
+            font-weight: bold;
+
+        }
+
+
+
+        .loading {
+
+            display: none;
+
+            text-align: center;
+
+            padding: 20px;
+
+        }
+
+
+
+        .spinner {
+
+            border: 4px solid #f3f3f3;
+
+            border-top: 4px solid #3498db;
+
+            border-radius: 50%;
+
+            width: 40px;
+
+            height: 40px;
+
+            animation: spin 1s linear infinite;
+
+            margin: 0 auto 15px;
+
+        }
+
+
+
+        @keyframes spin {
+
+            0% { transform: rotate(0deg); }
+
+            100% { transform: rotate(360deg); }
+
+        }
+
+
+
+        .error {
+
+            background: #e74c3c;
+
+            color: white;
+
+            padding: 15px;
+
+            border-radius: 5px;
+
+            margin: 20px 0;
+
+            text-align: center;
+
+            display: none;
+
+        }
+
+
+
+        .success {
+
+            background: #27ae60;
+
+            color: white;
+
+            padding: 15px;
+
+            border-radius: 5px;
+
+            margin: 20px 0;
+
+            text-align: center;
+
+            display: none;
+
+        }
+
+
+
+        @media (max-width: 768px) {
+
+            .content {
+
+                padding: 20px;
+
+            }
+
+
+
+            .settings {
+
+                flex-direction: column;
+
+                align-items: center;
+
+            }
+
+
+
+            .color-palette {
+
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+
+            }
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+    <div class="container">
+
+        <div class="header">
+
+            <h1>? Image Color Palette Extractor</h1>
+
+            <p>Upload an image to discover its dominant colors and create beautiful color palettes</p>
+
+        </div>
+
+
+
+        <div class="content">
+
+            <div class="upload-section">
+
+                <div class="upload-area" id="uploadArea">
+
+                    <div class="upload-icon">?</div>
+
+                    <h3>Drag & Drop your image here</h3>
+
+                    <p>or click to browse files</p>
+
+                    <p style="font-size: 0.9em; margin-top: 10px; opacity: 0.7;">
+
+                        Supports: JPG, PNG, GIF, BMP (Max 16MB)
+
+                    </p>
+
+                </div>
+
+
+
+                <input type="file" id="imageInput" class="file-input" accept="image/*">
+
+
+
+                <div class="settings">
+
+                    <div class="setting-group">
+
+                        <label for="method">Extraction Method:</label>
+
+                        <select id="method">
+
+                            <option value="kmeans">Smart Clustering (Recommended)</option>
+
+                            <option value="simple">Simple Counting</option>
+
+                        </select>
+
+                    </div>
+
+
+
+                    <div class="setting-group">
+
+                        <label for="numColors">Number of Colors:</label>
+
+                        <input type="number" id="numColors" min="3" max="20" value="10">
+
+                    </div>
+
+                </div>
+
+
+
+                <button class="btn" id="extractBtn" disabled>Extract Colors</button>
+
+            </div>
+
+
+
+            <div class="loading" id="loading">
+
+                <div class="spinner"></div>
+
+                <p>Analyzing your image... This may take a few seconds.</p>
+
+            </div>
+
+
+
+            <div class="error" id="errorMessage"></div>
+
+            <div class="success" id="successMessage"></div>
+
+
+
+            <div class="results" id="results">
+
+                <h2>? Color Palette</h2>
+
+                <p>Top <span id="colorsCount">10</span> dominant colors from your image:</p>
+
+
+
+                <div class="color-palette" id="colorPalette">
+
+                    <!-- Color items will be inserted here by JavaScript -->
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <script>
+
+        document.addEventListener('DOMContentLoaded', function() {
+
+            const uploadArea = document.getElementById('uploadArea');
+
+            const imageInput = document.getElementById('imageInput');
+
+            const extractBtn = document.getElementById('extractBtn');
+
+            const loading = document.getElementById('loading');
+
+            const results = document.getElementById('results');
+
+            const errorMessage = document.getElementById('errorMessage');
+
+            const successMessage = document.getElementById('successMessage');
+
+            const colorPalette = document.getElementById('colorPalette');
+
+            const colorsCount = document.getElementById('colorsCount');
+
+
+
+            let currentImageFile = null;
+
+
+
+            // Upload area click handler
+
+            uploadArea.addEventListener('click', () => {
+
+                imageInput.click();
+
+            });
+
+
+
+            // Drag and drop handlers
+
+            uploadArea.addEventListener('dragover', (e) => {
+
+                e.preventDefault();
+
+                uploadArea.classList.add('dragover');
+
+            });
+
+
+
+            uploadArea.addEventListener('dragleave', () => {
+
+                uploadArea.classList.remove('dragover');
+
+            });
+
+
+
+            uploadArea.addEventListener('drop', (e) => {
+
+                e.preventDefault();
+
+                uploadArea.classList.remove('dragover');
+
+
+
+                const files = e.dataTransfer.files;
+
+                if (files.length > 0) {
+
+                    handleImageFile(files[0]);
+
+                }
+
+            });
+
+
+
+            // File input change handler
+
+            imageInput.addEventListener('change', (e) => {
+
+                if (e.target.files.length > 0) {
+
+                    handleImageFile(e.target.files[0]);
+
+                }
+
+            });
+
+
+
+            // Extract button handler
+
+            extractBtn.addEventListener('click', extractColors);
+
+
+
+            function handleImageFile(file) {
+
+                // Validate file type
+
+                const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/bmp'];
+
+                if (!validTypes.includes(file.type)) {
+
+                    showError('Please select a valid image file (JPG, PNG, GIF, BMP)');
+
+                    return;
+
+                }
+
+
+
+                // Validate file size (16MB max)
+
+                if (file.size > 16 * 1024 * 1024) {
+
+                    showError('Image size must be less than 16MB');
+
+                    return;
+
+                }
+
+
+
+                currentImageFile = file;
+
+                extractBtn.disabled = false;
+
+
+
+                // Update upload area text
+
+                uploadArea.innerHTML = `
+
+                    <div class="upload-icon">✅</div>
+
+                    <h3>Image Selected</h3>
+
+                    <p>${file.name}</p>
+
+                    <p style="font-size: 0.9em; margin-top: 10px; opacity: 0.7;">
+
+                        Click "Extract Colors" or select another image
+
+                    </p>
+
+                `;
+
+
+
+                hideError();
+
+                hideSuccess();
+
+                results.style.display = 'none';
+
+            }
+
+
+
+            async function extractColors() {
+
+                if (!currentImageFile) return;
+
+
+
+                loading.style.display = 'block';
+
+                extractBtn.disabled = true;
+
+                hideError();
+
+                hideSuccess();
+
+                results.style.display = 'none';
+
+
+
+                const formData = new FormData();
+
+                formData.append('image', currentImageFile);
+
+                formData.append('method', document.getElementById('method').value);
+
+                formData.append('num_colors', document.getElementById('numColors').value);
+
+
+
+                try {
+
+                    const response = await fetch('/upload', {
+
+                        method: 'POST',
+
+                        body: formData
+
+                    });
+
+
+
+                    const data = await response.json();
+
+
+
+                    if (data.success) {
+
+                        displayColors(data.colors);
+
+                        colorsCount.textContent = data.num_colors;
+
+                        showSuccess(`Successfully extracted ${data.num_colors} colors from your image!`);
+
+                    } else {
+
+                        showError(data.error || 'An error occurred while processing the image');
+
+                    }
+
+                } catch (error) {
+
+                    showError('Network error: ' + error.message);
+
+                } finally {
+
+                    loading.style.display = 'none';
+
+                    extractBtn.disabled = false;
+
+                }
+
+            }
+
+
+
+            function displayColors(colors) {
+
+                colorPalette.innerHTML = '';
+
+
+
+                colors.forEach(color => {
+
+                    const colorItem = document.createElement('div');
+
+                    colorItem.className = 'color-item';
+
+
+
+                    // Determine text color based on background brightness
+
+                    const brightness = (color.rgb[0] * 299 + color.rgb[1] * 587 + color.rgb[2] * 114) / 1000;
+
+                    const textColor = brightness > 128 ? 'black' : 'white';
+
+
+
+                    colorItem.innerHTML = `
+
+                        <div class="color-swatch" style="background-color: ${color.hex}; color: ${textColor};">
+
+                            ${color.hex}
+
+                        </div>
+
+                        <div class="color-info">
+
+                            <div class="color-hex">${color.hex}</div>
+
+                            <div class="color-name">${color.name}</div>
+
+                            <div class="color-percentage">${color.percentage}%</div>
+
+                        </div>
+
+                    `;
+
+
+
+                    colorPalette.appendChild(colorItem);
+
+                });
+
+
+
+                results.style.display = 'block';
+
+            }
+
+
+
+            function showError(message) {
+
+                errorMessage.textContent = message;
+
+                errorMessage.style.display = 'block';
+
+            }
+
+
+
+            function hideError() {
+
+                errorMessage.style.display = 'none';
+
+            }
+
+
+
+            function showSuccess(message) {
+
+                successMessage.textContent = message;
+
+                successMessage.style.display = 'block';
+
+            }
+
+
+
+            function hideSuccess() {
+
+                successMessage.style.display = 'none';
+
+            }
+
+        });
+
+    </script>
+
+</body>
+
+</html>
+
+        

@@ -211,3 +211,72 @@ class ColorExtractor:
 
 
 color_extractor = ColorExtractor()
+
+
+@app.route('/')
+def index():
+    return render_template('index.html')
+
+
+@app.route('/upload', methods=['POST'])
+def upload_image():
+    if 'image' not in request.files:
+        return jsonify({'error': 'No image file provided'}), 400
+
+    image_file = request.files['image']
+
+    if image_file.filename == '':
+        return jsonify({'error': 'No image selected'}), 400
+
+
+    allowed_extensions = {'png', 'jpg', 'jpeg', 'gif', 'bmp'}
+
+    if not ('.' in image_file.filename and
+
+            image_file.filename.rsplit('.', 1)[1].lower() in allowed_extensions):
+        return jsonify({'error': 'Invalid file type. Please upload an image file.'}), 400
+
+    try:
+
+
+        method = request.form.get('method', 'kmeans')
+
+        num_colors = min(int(request.form.get('num_colors', 10)), 20)
+
+
+        colors = color_extractor.extract_dominant_colors(
+
+            image_file,
+
+            method=method,
+
+            num_colors=num_colors
+
+        )
+
+        return jsonify({
+
+            'success': True,
+
+            'colors': colors,
+
+            'method': method,
+
+            'num_colors': len(colors)
+
+        })
+
+
+
+    except Exception as e:
+
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/health')
+def health_check():
+    return jsonify({'status': 'healthy'})
+
+
+if __name__ == '__main__':
+    app.run(debug=True, host='0.0.0.0', port=5000)

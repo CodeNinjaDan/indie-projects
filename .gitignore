@@ -25,3 +25,5 @@ __pycache__/
 *.jpg
 *.png
 *.jpeg
+f1_stats/site_text.html
+*.csv

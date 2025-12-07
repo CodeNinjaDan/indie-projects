@@ -3,36 +3,40 @@ import os
 import time
 
 IMAGE_NAME = 'target_img.png'
+pyautogui.PAUSE = 0
 
 def get_bottom_screen():
     screen_width, screen_height = pyautogui.size()
 
     left = 0
     top = screen_height // 2
-    width = screen_width
+    width = screen_width // 2
     height = screen_height // 2
 
     return left, top, width, height
 
 def skip_obstacle():
+    start = time.perf_counter()
     print(f"Scanning screen for: {IMAGE_NAME}...")
     screen_region = get_bottom_screen()
 
     try:
         location = pyautogui.locateCenterOnScreen(
             IMAGE_NAME,
+            confidence=0.9,
             region=screen_region
         )
         if location:
             print(f"Target found at: {location}")
-            pyautogui.typewrite(['space'])
+            pyautogui.press('space')
             print("Space Pressed")
             return True
 
-    except pyautogui.ImageNotFoundException:
-        pass
     except Exception as e:
         print(f"An unexpected error occurred: {e}")
+
+    elapsed = time.perf_counter() - start
+    print("Execution time", elapsed, "seconds")
 
     return False
 

@@ -27,6 +27,8 @@ bullet_speed = 35
 
 
 enemies = []
+enemy_speed = 1.5
+enemy_drop = 30
 
 def make_enemies():
     start_x = -225
@@ -101,7 +103,7 @@ def fire_bullet():
 
 def is_collision(t1, t2):
     distance = math.sqrt(math.pow(t1.xcor() - t2.xcor(), 2) + math.pow(t1.ycor() - t2.ycor(), 2))
-    if distance < 25:
+    if distance < 20:
         return True
     else:
         return False
@@ -121,5 +123,68 @@ while True:
         y += bullet_speed
         bullet.sety(y)
 
+    if bullet.ycor() > 280:
+        bullet.hideturtle()
+        bullet.state = "ready"
 
+    move_enemies = False
+    for enemy in enemies:
+        x = enemy.xcor()
+        x += enemy_speed
+        enemy.setx(x)
 
+        if x > 380 or x < -380:
+            move_enemies = True
+
+        if bullet.state is "fire" and is_collision(bullet, enemy):
+            bullet.hideturtle()
+            bullet.state = "ready"
+            bullet.goto(0, -400)
+
+            enemy.goto(1000, 1000)
+            enemies.remove(enemy)
+
+            score += 10
+            pen.clear()
+            pen.write(f"Score: {score}", align="center", font=("Courier", 24, "normal"))
+
+        if is_collision(player, enemy):
+            player.hideturtle()
+            enemy.hideturtle()
+            game_over_pen.write("GAME OVER!", align="center", font=("Courier", 30, "bold"))
+            is_running = False
+            break
+
+        for barrier in barriers:
+            if is_collision(enemy, barrier):
+                barrier.goto(1000, 1000)
+                if barrier in barriers:
+                    barriers.remove(barrier)
+
+    if move_enemies:
+        enemy_speed *= -1
+        for enemy in enemies:
+            y = enemy.ycor()
+            y -= enemy_drop
+            enemy.sety(y)
+
+            if y < -240:
+                game_over_pen.write("GAME OVER!", align="center", font=("Courier", 30, "bold"))
+                is_running = False
+
+    if bullet.state == "fire":
+        for barrier in barriers:
+            if is_collision(bullet, barrier):
+                bullet.hideturtle()
+                bullet.state = "ready"
+                bullet.goto(0, -400)
+                barrier.goto(1000, 1000)
+                if barrier in barriers:
+                    barriers.remove(barrier)
+                break
+
+    if len(enemies) == 0:
+        game_over_pen.write("YOU WIN!", align="center", font=("Courier", 30, "bold"))
+        is_running = False
+
+screen.mainloop()

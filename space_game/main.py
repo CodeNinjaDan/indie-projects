@@ -25,6 +25,21 @@ bullet.goto(0, -400)
 bullet.state = "ready"
 bullet_speed = 35
 
+barriers = []
+barrier_positions = [-200, 0, 200]
+
+def make_barriers():
+    for x in barrier_positions:
+        for i in range(4):
+            barrier = turtle.Turtle()
+            barrier.shape("square")
+            barrier.color("green")
+            barrier.speed(0)
+            barrier.penup()
+            barrier.goto(x +(i * 25 - 25), -180)
+            barriers.append(barrier)
+
+make_barriers()
 
 enemies = []
 enemy_speed = 1.5
@@ -48,21 +63,6 @@ def make_enemies():
 
 make_enemies()
 
-barriers = []
-barrier_positions = [-200, 0, 200]
-
-def make_barriers():
-    for x in barrier_positions:
-        for i in range(4):
-            barrier = turtle.Turtle()
-            barrier.shape("square")
-            barrier.color("green")
-            barrier.speed(0)
-            barrier.penup()
-            barrier.goto(x +(i * 25 - 25), -180)
-            barriers.append(barrier)
-
-make_barriers()
 
 pen = turtle.Turtle()
 pen.speed(0)
@@ -102,7 +102,7 @@ def fire_bullet():
         bullet.state = "fire"
 
 def is_collision(t1, t2):
-    distance = math.sqrt(math.pow(t1.xcor() - t2.xcor(), 2) + math.pow(t1.ycor() - t2.ycor(), 2))
+    distance = math.sqrt((t1.xcor() - t2.xcor()) ** 2 + (t1.ycor() - t2.ycor()) ** 2)
     if distance < 20:
         return True
     else:
@@ -115,7 +115,7 @@ screen.onkeypress(fire_bullet, "space")
 
 
 is_running = True
-while True:
+while is_running:
     screen.update()
 
     if bullet.state == "fire":
@@ -136,14 +136,13 @@ while True:
         if x > 380 or x < -380:
             move_enemies = True
 
-        if bullet.state is "fire" and is_collision(bullet, enemy):
+        if bullet.state == "fire" and is_collision(bullet, enemy):
             bullet.hideturtle()
             bullet.state = "ready"
             bullet.goto(0, -400)
-
             enemy.goto(1000, 1000)
-            enemies.remove(enemy)
-
+            if enemy in enemies:
+                enemies.remove(enemy)
             score += 10
             pen.clear()
             pen.write(f"Score: {score}", align="center", font=("Courier", 24, "normal"))
@@ -168,7 +167,7 @@ while True:
             y -= enemy_drop
             enemy.sety(y)
 
-            if y < -240:
+            if y < -230:
                 game_over_pen.write("GAME OVER!", align="center", font=("Courier", 30, "bold"))
                 is_running = False
 
